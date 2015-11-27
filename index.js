@@ -1,16 +1,14 @@
 #! /usr/bin/env node
 
-
 var program = require('commander');
 var Twitter = require('twitter');
 var keys = require('./keys.json');
-var secrets = require('./secrets.json');
 
 var client = new Twitter({
   consumer_key: keys.consumer_key,
-  consumer_secret: secrets.consumer_secret,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
   access_token_key: keys.access_token_key,
-  access_token_secret: secrets.access_token_secret
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
 
@@ -33,9 +31,11 @@ if (program.auth) {
 }
 
 if (program.show) {
-  client.get('favorites/list', function(error, tweets, response) {
-    if (error) throw error;
-    console.log(tweets[1].text);
+  var user = {
+    screen_name: process.env.TWITTER_USERNAME
+  }
+  client.get('statuses/user_timeline', user, function(error, tweets, response) {
+    console.log("Current Status: " + tweets[0].text);
   });
 }
 
@@ -48,10 +48,8 @@ if (program.tweet) {
       if (error) {
         console.log(error);
       } else {
-        console.log(tweet); // Tweet body.
-        //console.log(response); // Raw response object.
+        console.log(tweet.text);
       }
     });
-    console.log('%s', program.tweet);
   }
 }
