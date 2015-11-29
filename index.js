@@ -14,20 +14,22 @@ var client = new Twitter({
 
 program
   .version('0.0.1')
-  .option('-a, --auth [username]', 'Sign into Twitter with username')
+  .option('-a, --all', 'Show entire last tweet')
   .option('-t, --tweet [message]', 'Tweet the message you would like')
   .option('-s, --show', 'show')
   .parse(process.argv);
 
-
-
-
-if (program.auth) {
-  if (program.auth.length > 0) {
-    console.log('%s', program.auth);
-  } else {
-    console.log("Please provide a user name!");
+if (program.all) {
+  var user = {
+    screen_name: process.env.TWITTER_USERNAME
   }
+  client.get('statuses/user_timeline', user, function(error, tweets, response) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Last Tweet: ' + tweets[0].text);
+    }
+  });
 }
 
 if (program.show) {
@@ -35,7 +37,11 @@ if (program.show) {
     screen_name: process.env.TWITTER_USERNAME
   }
   client.get('statuses/user_timeline', user, function(error, tweets, response) {
-    console.log("Current Status: " + tweets[0].text);
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('"' + tweets[0].text.substring(0, 20) + '..."');
+    }
   });
 }
 
